@@ -80,7 +80,8 @@ class doctor_sawyer:
         goal.pose.orientation.w = 0.0
     
         #Set the goal state to the pose you just defined
-        arm.set_pose_target(goal)
+        #arm.set_pose_target(goal)
+        arm.set_position_target([x, y, self.table_z + 0.30])
     
         #Set the start state for the right arm
         arm.set_start_state_to_current_state()
@@ -180,17 +181,17 @@ class doctor_sawyer:
         p.pose.position.z = self.table_z / 2.0
         scene.add_box("patient", p, (0.3, 0.3, self.table_z / 2.0))
 
-        #orien_const = OrientationConstraint()
-        #orien_const.link_name = "right_gripper";
-        #orien_const.header.frame_id = "base";
-        #orien_const.orientation.y = -1.0;
-        #orien_const.absolute_x_axis_tolerance = 0.1;
-        #orien_const.absolute_y_axis_tolerance = 0.1;
-        #orien_const.absolute_z_axis_tolerance = 0.1;
-        #orien_const.weight = .5;
-        #consts = Constraints()
-        #consts.orientation_constraints = [orien_const]
-        #right_arm.set_path_constraints(consts)
+        orien_const = OrientationConstraint()
+        orien_const.link_name = "right_gripper";
+        orien_const.header.frame_id = "base";
+        orien_const.orientation.y = -1.0;
+        orien_const.absolute_x_axis_tolerance = 0.1;
+        orien_const.absolute_y_axis_tolerance = 0.1;
+        orien_const.absolute_z_axis_tolerance = 50;
+        orien_const.weight = .5;
+        consts = Constraints()
+        consts.orientation_constraints = [orien_const]
+        right_arm.set_path_constraints(consts)
 
         ans = {} # start with empty dictionary
         for i in range(-nx, nx+1):
@@ -218,6 +219,7 @@ def main():
     rs.enable()
 
     rospy.logdebug("Closing gripper...")
+    #raw_input("Press any key to close gripper")
     right_gripper = intera_interface.gripper.Gripper('right')
     right_gripper.calibrate()    
     #rospy.sleep(2.0)
@@ -225,7 +227,6 @@ def main():
     right_gripper.close()
     #rospy.sleep(2.0)
     rospy.logdebug("Gripper closed")
-
     doctor = doctor_sawyer(valid_limbs[0])
     doctor.find_table()
 
